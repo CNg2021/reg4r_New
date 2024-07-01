@@ -1,0 +1,77 @@
+h1{
+    color :  green;
+}
+
+/* table{
+    overflow:auto;
+    height:600px;
+    display:block;
+ } */
+
+ /* th {
+    top:0;
+    z-index:2;
+    position: fixed;
+ } */
+/* table with scrollable contents, does not work properly */
+table.scrolldown {
+    width: 100%;
+    border-spacing: 0;
+    border: 2px solid black;
+}
+
+table.scrolldown thead {
+    display: table-row;
+}
+
+table.scrolldown tbody {
+    display: block;
+}
+
+table.scrolldown thead td,
+table.scrolldown tbody td {
+    width:200px;
+    text-align: center;
+}
+/* thead tr th {
+    height: 40px;
+    line-height: 40px;
+} */
+
+table.scrolldown tbody {
+
+    height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+label.col-sm-2 {
+    display: block;
+}
+/* tbody {
+    border-top: 2px solid black;
+} */
+
+/* tbody td,
+thead th {
+    width: 150px;
+}  */
+
+/* td {
+    text-align: center;
+}  */
+
+/* make navigation bar position fixed, prevent scrolling with contents */
+.navbar {
+    position: sticky;
+    top: 0;
+}
+
+#tabHeading {
+    position: sticky;
+    top: 70px;
+}
+
+.nav-link.active {
+    color:red !important;  /* make it precedes over other css */
+}

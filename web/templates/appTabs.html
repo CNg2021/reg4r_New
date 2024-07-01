@@ -1,0 +1,57 @@
+    <!-- just pure html to be included in tab contents -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{{ url_for('Index_blueprint.index') }}">4R</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#navbarSupportedContent" 
+                  aria-controls="navbarSupportedContent" 
+                  aria-expanded="false" 
+                  aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- ul class="navbar-nav me-auto mb-2 mb-lg-0" -->
+            <ul class="nav-tabs nav" id="myTab">
+              <li class="nav-item">
+                <a class="nav-link"  id="urlAttend" data-toggle="tab"
+                   href="{{ url_for('attendance_blueprint.attendance') }}">Attendance</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="urlfindClient" data-toggle="tab"
+                    href="{{ url_for('LookupClient_blueprint.searchClient') }}">Search Client</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="urldbUpdate" data-toggle="tab"
+                    href="{{ url_for('WorkInDB_blueprint.updateRecord') }}">Attendee Maintenance</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="urlShowAll" data-toggle="tab"
+                   href="{{ url_for( 'ShowAllFriends_blueprint.viewAll')}}">View All Registrants</a>
+              </li>
+            </ul>
+            <!-- <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form> -->
+          </div>
+        </div>
+      </nav>
+      <div id="tabHeading" style="width: 100%; overflow: hidden;">
+        <div style="float: left;">
+          <img src="{{ url_for( 'static', filename='img/4RFridayLogo.png')}}" width="250" height="150" alt="dmbc">
+        </div>
+        <div style="margin-left: 300px;" >
+          <br/><br/>
+          <h1>{{ page_heading }}</h1>
+        </div>
+      </div>
+      <script>
+        // due to flask reloading the behaviour, we want to change the tab in focus
+        //  as active class after things are done, so this is the univaersal remove
+        //  active state of the tabs, each tab onload will set themselves active
+        //    deprecated
+        // $(document).ready( function() {
+        //    $('.nav-link.active').removeClass( "active").removeAttr('aria-current');   // remove it
+        //     return(true);
+        // });
+    </script>

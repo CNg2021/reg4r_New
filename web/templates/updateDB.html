@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- form to get client infof -->
+    <div class="container">
+        <!--- catcing WTF errors -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul style="color:red; font-size:larger;">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
+        <br/><br/>
+        <!-- form to get client info -->
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3 row">
+                <label for="firstName" class="col-sm-2 col-form-label">{{ form.firstName.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.firstName(size=32) }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="lastName" class="col-sm-2 col-form-label">{{ form.lastName.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.lastName(size=32) }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="phone" class="col-sm-2 col-form-label">{{ form.phoneNumber.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.phoneNumber(size=15) }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="address" class="col-sm-2 col-form-label">{{ form.address.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.address(size=70) }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="ECContact" class="col-sm-2 col-form-label">{{ form.ECName.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.ECName(size=32) }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="ECPhhone" class="col-sm-2 col-form-label">{{ form.ECPhone.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.ECPhone(size=15) }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="email" class="col-sm-2 col-form-label">{{ form.Email.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.Email( size=50 ) }}
+                </div>
+            </div>
+            <fieldset class="row mb-3">
+                <legend class="col-form-label col-sm-2 pt-0">Is Primary Family member</legend>
+                <div class="col-sm-10">
+                    <div class="form-check-input">{{ form.IsPrimary }}</div>
+                </div>  
+                <div class="mb-3 row">
+                    <label for="FamilyName" class="col-sm-2 col-form-label">{{ form.FamilyName.label }}</label>
+                    <div class="col-sm-10">
+                        {{ form.FamilyName(size=30) }}
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="mb-3 row">
+                <label for="FeesPaid" class="col-sm-2 col-form-label">{{ form.FeesPaid.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.FeesPaid }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="activity" class="col-sm-2 col-form-label">{{ form.MainActivity.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.MainActivity }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Remarks" class="col-sm-2 col-form-label">{{ form.dateRegistered.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.dateRegistered }}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Remarks" class="col-sm-2 col-form-label">{{ form.Remarks.label }}</label>
+                <div class="col-sm-10">
+                    {{ form.Remarks(size=70) }}
+                </div>
+            </div>
+            <br/><br/>
+            <p>{{ form.submit() }}</p>
+        </form>
+    </div>
+    <script>
+        //------------ script to format phone as typing -------
+        function formatPhoneNum( num ) {
+            if( num=="undefined" ) return num;
+            // alert( num ) ;            // if > 4 but < 7
+            const phoneNum = num.replace( /[^\d]/g, '');
+            const numlen = phoneNum.length;
+            if( numlen<4 ) return phoneNum;     // if still < 4 return number as is
+            if( numlen<7 ) {       
+                //alert( phoneNum.slice(0,3));
+                return '(' + phoneNum.slice(0,3) + ') ' + phoneNum.slice(3);
+            }
+            // > 7 whole phone number to return
+            return '(' + phoneNum.slice(0,3) +') '+ phoneNum.slice(3,6)+'-' + phoneNum.slice(6,9)
+        }
+        // due to flask reloading the behaviour, we want to change the tab in focus
+        //  as active class after things are done
+        // due to flask reloading the behaviour, we want to change the tab in focus
+        //  as active class after things are done
+        $(document).ready( function() {
+            // falling linedone in appTabs.html already
+            // $('.nav-link.active').removeClass( "active").removeAttr('aria-current');   // remove it
+            $mylink =$('#urldbUpdate');
+            $mylink.addClass("active");   // set hyperlink active
+            // alert('clicked '+$mylink.attr('href') + ' class is '+ $mylink.attr('class') );
+            $('#phone').keydown( function(e){
+                formattedPhoneNum = formatPhoneNum( $('#phone').val() );
+                $('#phone').val( formattedPhoneNum );
+
+            })
+            $('#ecPhone').keydown( function(e){
+                formattedPhoneNum = formatPhoneNum( $('#ecPhone').val() );
+                $('#ecPhone').val( formattedPhoneNum );
+
+            })
+            return(true);
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <h1>{{ attendPageHeading }}</h1>
+
+        <form id="qrForm" action="" method="POST">
+            <input style="display:none" id="qrcode" name="qrcode" size="40" type="text" value="">
+            <input style="display:none" id="clientIDtoAdd" name="clientIDtoAdd" size="20" type="text" value="">
+            <input style="display:none" id="todo" name="todo" size="40" type="text" value="">
+            <div class="container px-4">
+                <div class="row gx-5">
+                    <div class="col">
+                        <label for="sessionDate" class="sr-only">{{frmSession.sessionDate.label}}</label>
+                        {{ frmSession.sessionDate }}
+                    </div>
+                    <div class="col">
+                        <label for="sessionType" class="sr-only">{{ frmSession.sessionType.label}}</label>
+                        <!-- <input type="text" class="form-control" id="sessionType" placeholder="Evening"> -->
+                        {{ frmSession.sessionType }}
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary mb-2" onclick="setToDo('createNewSession')">View</button>
+                    </div>
+                    {{ frmSession.sessionID }}
+                </div>
+            </div>
+
+            {% if(frmSession.sessionID.data != none and frmSession.sessionID.data !='') %}
+            <br/>
+                <div class="container px-4">
+                    <div class="row gx-5">
+                        <div class="col">
+                            <!-- <label for="firstName" class="sr-only">{{ frmSession.firstName.label }}</label> -->
+                            {{ frmSession.firstName }}
+                        </div>
+                        <div class="col">
+                            <!-- <label for="lastName" class="sr-only">{{ frmSession.lastName.label}}</label> -->
+                            {{ frmSession.lastName }}
+                        </div>
+                        <div class="col">
+                            <!-- <label for="phone" class="sr-only">{{ frmSession.phoneNumber.label}}</label> -->
+                            {{ frmSession.phoneNumber }}
+                        </div>
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary mb-2" onclick="setToDo( 'findClient' )">Find and Add</button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% if foundClients is not none  %}
+            <table class="table table-striped">
+                <thead style="font-weight:normal; font-style:italic">
+                    <!-- create header -->
+                    <tr>
+                        <td>Last Name</td>
+                        <td>First name</td>
+                        <td>Phone number</td>
+                        <td>Emergency Contact</td>
+                        <td>EC Phone</td>
+                        <td>Fee Paid</td>
+                        <td>Reg. Date</td>
+                        <td>Add this attendee</td>
+                    </tr>
+                </thead>
+                <tbody> <!-- fill table -->
+                {% for person in foundClients %}
+                <tr>
+                    <td>{{person.lastName}}</td>
+                    <td>{{person.firstName}}</td>
+                    <td>{{person.phoneNumber}}</td>
+                    <td>{{person.ECName}}</td>
+                    <td>{{person.ECPhone}}</td>
+                    <td>{{person.FeesPaid}}</td>
+                    <td>{{person.dateRegistered}}</td>
+                    <td><button type="submit"  class="btn btn-info" onclick="addAttendee('{{ person.id }}');">Add</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        {% endif %}
+            {% if curAttendees is not none %}
+                <!-- table to show the attendees -->
+                <div class="form-group">
+                    <table class="table table-bordered">
+                    <thread><tr><th class="text-center">{{ tableHeader }}</th></tr>
+                    </thread>
+                    <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+                <table class="scrolldown table table-striped">
+                    <thead style="font-weight: bold;">
+                        <!-- create header -->
+                        <tr>
+                            <td>Last Name</td>
+                            <td>First name</td>
+                            <td>Phone number</td>
+                            <td>Emergency Contact</td>
+                            <td>EC Phone</td>
+                            <td>Fee Paid</td>
+                            <td>Remove</td>
+                            <!-- <td>Fav. Activity</td> -->
+                        </tr>
+                    </thead>
+                    <tbody> <!-- fill table -->
+                        {% if curAttendees is not none  %}
+                            {% for person in curAttendees %}
+                            <tr>
+                                <td>{{person.lastName}}</td>
+                                <td>{{person.firstName}}</td>
+                                <td>{{person.phoneNumber}}</td>
+                                <td>{{person.ECName}}</td>
+                                <td>{{person.ECPhone}}</td>
+                                <td>{{person.FeesPaid}}</td>
+                                <td><button type="submit"  class="btn btn-secondary" onclick="removeAttendee('{{ person.id }}');">Remove</button>
+                                </td>
+                                
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </form>
+    </div>
+    <script type="text/javascript">
+        function formatPhoneNum( num ) {
+            if( num=="undefined" ) return num;
+            // alert( num ) ;            // if > 4 but < 7
+            const phoneNum = num.replace( /[^\d]/g, '');
+            const numlen = phoneNum.length;
+            if( numlen<4 ) return phoneNum;     // if still < 4 return number as is
+            if( numlen<7 ) {       
+                //alert( phoneNum.slice(0,3));
+                return '(' + phoneNum.slice(0,3) + ') ' + phoneNum.slice(3);
+            }
+            // > 7 whole phone number to return
+            return '(' + phoneNum.slice(0,3) +') '+ phoneNum.slice(3,6)+'-' + phoneNum.slice(6,9)
+        }
+
+        //'http://' + document.domain + ':' + location.port + '/scan');    
+        $(document).ready(function() {
+
+            $("#qrcode").keyup( function(event) {
+                    if( event.keyCode==13 && $(this).val() != "" ) {
+                        var toAppend = '<tr class="rowClass"><td class="row-index text-center">'+$(this).val()+'</td>';
+                        $('#tbody').append( toAppend );
+                        $("#qrForm").submit();
+                }
+            })
+
+            $('#phone').keydown( function(e){
+                formattedPhoneNum = formatPhoneNum( $('#phone').val() );
+                $('#phone').val( formattedPhoneNum );
+
+            })
+
+            // falling linedone in appTabs.html already
+            // $('.nav-link.active').removeClass( "active").removeAttr('aria-current');   // remove it
+            $mylink =$('#urlAttend');
+            $mylink.addClass("active");   // set hyperlink active
+            //alert('clicked '+$mylink.attr('href') + ' class is '+ $mylink.attr('class') );
+            return(true);
+        });
+
+        // on key up get append value to the hidden input field, has to be document wide, since we don't have any
+        //  input box or hidden ones
+        $(document).keyup ( function(e) {
+            if ( e.keyCode==13 ) {
+                //alert( $('#firstName').val() );
+                // if we have values in first name, last name, phone number, then change todo to "findClient"
+                // for some reason at the time of return, the values are blank so following code does not
+                //  work, what's the danger of blindly set it ?
+                //if( $('#firstName').val() != '' || $('#lastName').val!='' || $('#phone').val() !='' ) {
+                //    $('#todo').val( 'findClient' );
+                //}
+                $("#qrForm").submit();
+            }
+            else {
+                var toAppend;
+                if (e.keyCode==189) {
+                    // javascript does not interpret char with unicode, the dash came down as 1/2
+                    toAppend='-';
+                }
+                else {
+                    toAppend=String.fromCharCode(e.keyCode || e.which);
+                    //alert( e.which );
+                }
+                // console.log(String.fromCharCode(e.keyCode || e.which) );
+                $("#qrcode").val( $("#qrcode").val() + toAppend ) ;
+            } 
+        });
+        
+        function addAttendee( clientid ) {
+            // alert( clientid );
+            if ( clientid ==null || clientid =='' ) 
+                return;
+            else {
+                $('#todo').val( 'addClient' )  // set todo before post back
+                $('#clientIDtoAdd').val( clientid );    // assign client id to post 
+                $("#qrForm").submit();
+            }
+        };
+
+        function removeAttendee( clientid ) {
+            alert( clientid );
+            if ( clientid ==null || clientid =='' ) 
+                return;
+            else {
+                $('#todo').val( 'removeClient' )  // set todo before post back
+                $('#clientIDtoAdd').val( clientid );    // assign client id to post 
+                $("#qrForm").submit();
+            }
+        };
+
+        function setToDo( todo ) {
+            $('#todo').val( todo );     // set todo before post back
+            $("#qrForm").submit();
+        };
+
+        function getValue( inp ) {
+            alert('in here');
+            setTimeout( function( inp ) {
+                alert('in setting value');
+                var toAppend = '<tr class="rowClass"><td class="row-index text-center">'+$(this).val()+'</td>';
+                $('#tbody').append( toAppend );
+                inp.clear();    // clear the old value
+                inp.focus();
+            }, 1000 );
+        };
+    </script>
+
+{% endblock %}

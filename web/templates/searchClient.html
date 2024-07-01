@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- form to get client infof -->
+    <div class="container">
+        <!--- catcing WTF errors -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul style="color:red; font-size:larger;">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
+        <div class="accordion" id="accordionExample">
+            {% if showAdmin %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    Admin Utilities
+                </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <form action="" method="POST">
+                        {{ form.hidden_tag() }}            
+                        <p>{{ formUtil.submitUpdateQR() }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                           {{ formUtil.submitMakeNameTags() }} 
+                        </p>
+                    </form>
+                </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                    Search client by first name and last name, or by phone
+                </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <form id="searchClient" action="" method="POST">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-3 row">
+                                <label for="firstName" class="col-sm-2 col-form-label">{{ form.firstName.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.firstName(size=32) }}
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="lastName" class="col-sm-2 col-form-label">{{ form.lastName.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.lastName(size=32) }}
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="phone" class="col-sm-2 col-form-label">{{ form.phoneNumber.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.phoneNumber(size=15) }} &nbsp;&nbsp;&nbsp;&nbsp; {{ form.submitSearch() }}
+                                </div>
+                            </div>
+                            <br/>
+                            <input style="display:none" id="clientID" name="clientID" type="text" value="">
+                            <input style="display:none" id="todo" name="todo" size="40" type="text" value="">
+
+                            {% if clients is not none  %}
+                                <table class="table table-striped">
+                                    <thead style="font-weight: bold;">
+                                        <!-- create header -->
+                                        <tr>
+                                            <!-- test out getting an image -->
+                                            <!-- <td>QR Code </td> -->
+                                            <td>FamilyID</td>
+                                            <td>Last Name</td>
+                                            <td>First name</td>
+                                            <td>Phone number</td>
+                                            <td>Emergency Contact</td>
+                                            <td>EC Phone</td>
+                                            <td>Fee Paid</td>
+                                            <!-- <td>Fav. Activity</td> -->
+                                            <td>Reg. Date</td>
+                                            <td>Edit client info</td>
+                                            <td>Delete client</td>
+                                            <td>Attendance</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody> <!-- fill table -->
+                                    {% for person in clients %}
+                                    <tr>
+                                        <!-- <td><img src="{{ person.qrimg }}" width="50" height="50"></td> -->
+                                        <td>{{person.familyid}}</td>
+                                        <td>{{person.lastName}}</td>
+                                        <td>{{person.firstName}}</td>
+                                        <td>{{person.phoneNumber}}</td>
+                                        <td>{{person.ECName}}</td>
+                                        <td>{{person.ECPhone}}</td>
+                                        <td>{{person.FeesPaid}}</td>
+                                        <!-- <td>{{person.FavSport}}</td> -->
+                                        <td>{{person.dateRegistered}}</td>
+                                        <!-- provide an update button for each row -->
+                                        <td><a href="{{ url_for('WorkInDB_blueprint.updateRecord') }}?id={{person.id}}&todo=update" 
+                                               class="btn btn-primary">Update</a></td>
+                                        <td><a href="{{ url_for('WorkInDB_blueprint.updateRecord') }}?id={{person.id}}&todo=delete" 
+                                                class="btn btn-primary">DELETE</a></td>
+                                        <td><input type="button" onclick="checkAttendance( {{person.id}})" class="btn btn-info" value="Review"></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                </table>
+                            {% endif %}
+
+                            {% if tblAttendance is not none  %}
+                                <center><h3> Attendance of {{tblAttendance[0].firstName}} {{tblAttendance[0].lastName}}</h3></center>
+                                <table class="scrolldown table table-striped">
+                                    <thead style="font-weight: bold;">
+                                        <tr>
+                                            <td>date</td>
+                                            <td>DayOfWeek</td>
+                                            <td>Session</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for attendance in tblAttendance %}
+                                    <tr>
+                                        <td>{{ attendance.date }}</td>
+                                        <td>{{ attendance.dayOfWeek }}</td>
+                                        <td>{{ attendance.session }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>    
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function formatPhoneNum( num ) {
+            if( num=="undefined" ) return num;
+            // alert( num ) ;            // if > 4 but < 7
+            const phoneNum = num.replace( /[^\d]/g, '');
+            const numlen = phoneNum.length;
+            if( numlen<4 ) return phoneNum;     // if still < 4 return number as is
+            if( numlen<7 ) {       
+                //alert( phoneNum.slice(0,3));
+                return '(' + phoneNum.slice(0,3) + ') ' + phoneNum.slice(3);
+            }
+            // > 7 whole phone number to return
+            return '(' + phoneNum.slice(0,3) +') '+ phoneNum.slice(3,6)+'-' + phoneNum.slice(6,9)
+        }
+        // due to flask reloading the behaviour, we want to change the tab in focus
+        //  as active class after things are done
+        $(document).ready( function() {
+            // falling linedone in appTabs.html already
+            // $('.nav-link.active').removeClass( "active").removeAttr('aria-current');   // remove it
+            $mylink =$('#urlfindClient');
+            $mylink.addClass("active");   // set hyperlink active
+            // alert('clicked '+$mylink.attr('href') + ' class is '+ $mylink.attr('class') );
+            // set up routine to enforce phonenumber format, id = 'phone' see bpLookUpClient.py 
+            //  searchClientForm class
+            $('#phone').keydown( function(e){
+                formattedPhoneNum = formatPhoneNum( $('#phone').val() );
+                $('#phone').val( formattedPhoneNum );
+
+            })
+            return(true);
+        });
+
+        function checkAttendance( clientid ) {
+            $('#todo').val( 'clientAttendance' );           // set todo before post back
+            $('#clientID').val( clientid );
+            $('#searchClient').submit();                    // submit to display attendance
+        }
+    </script>
+{% endblock %}

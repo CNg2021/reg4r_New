@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="container">
+            <form action="" method="POST">
+            <div class="form-check form-switch" style="margin-left: 150px;">
+                <!-- <input class="form-check-input" type="checkbox" id="InlcudeUnpaid"> -->
+                {{form.InlcudeUnpaid}}
+                <label class="form-check-label" for="InlcudeUnpaid">{{form.InlcudeUnpaid.label}}</label>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {{form.OnlyUnpaid}}
+                <label class="form-check-label" for="InlcudeUnpaid">{{form.OnlyUnpaid.label}}</label>
+
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;{{form.show()}}
+            </div>
+            <br/><br/>
+            {% if registrants is not none  %}
+            <h3>Total of {{registrants|length}}</h3>
+            <table class="scrolldown table table-striped">
+                <thead style="font-weight: bold;">
+                    <!-- create header -->
+                    <tr>
+                        <!-- <td>ID</td> -->
+                        <td>Last Name</td>
+                        <td>First name</td>
+                        <td>Phone number</td>
+                        <td>Emergency Contact</td>
+                        <td>EC Phone</td>
+                        <td>Fee Paid</td>
+                        <!-- <td>Fav. Activity</td> -->
+                        <td>Reg. Date</td>
+                        <td>Update info</td>
+                        <td>Delete</td>
+                    </tr>
+                </thead>
+                <tbody> <!-- fill table -->
+                
+                        {% for person in registrants %}
+                        <tr>
+                            <!-- <td>{{person['id']}}</td> -->
+                            <td>{{person['lastName']}}</td>
+                            <td>{{person['firstName']}}</td>
+                            <td>{{person['phoneNumber']}}</td>
+                            <td>{{person['ECName']}}</td>
+                            <td>{{person['ECPhone']}}</td>
+                            <td>{{person['FeesPaid']}}</td>
+                            <!-- <td>{{person['FavSport']}}</td> -->
+                            <td>{{person['dateRegistered']}}</td>
+                            <td><a href="{{ url_for('WorkInDB_blueprint.updateRecord') }}?id={{person.id}}&todo=update" class="btn btn-info">Update</a></td>
+                            <td><a href="{{ url_for('WorkInDB_blueprint.updateRecord') }}?id={{person['id']}}&todo=delete" 
+                                class="btn btn-warning">DELETE</a></td>
+                        </tr>
+                        {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </form>
+    </div>
+
+    <script>
+        // due to flask reloading the behaviour, we want to change the tab in focus
+        //  as active class after things are done
+        $(document).ready( function() {
+            // falling linedone in appTabs.html already
+            //  $('.nav-link.active').removeClass( "active").removeAttr('aria-current');   // remove it
+            $mylink =$('#urlShowAll');
+            $mylink.addClass("active");   // set hyperlink active
+
+            //------- set up switchbox change and post the corresponding request to form
+            $('#inlcudeUnpaid').change( function() {
+                if( $(this).is( ":checked" ) ) {
+                    var returnVal = confirm( "Return only payee?")
+                    $(this).attr( "checked", returnVal );
+                }
+                $('#inlcudeUnpaid').val( $(this).is(':checked'));
+            });
+            return(true);
+        });
+    </script>
+{% endblock %}
