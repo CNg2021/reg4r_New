@@ -1,0 +1,4 @@
+*.db
+.vscode/
+__psycache__/
+.venv/
